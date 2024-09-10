@@ -76,7 +76,7 @@ public class RomanNumberTest
     }
 
     [TestMethod]
-    public void PlusTest()
+    public void GivenTwoIntegers_WhenCallingPlus_ShouldReturnRomanNumberWithCorrectSum()
     {
         RomanNumber first = new(1);
         RomanNumber second = new(2);
@@ -86,6 +86,20 @@ public class RomanNumberTest
         result.Should().NotBeSameAs(first);
         result.Should().NotBeSameAs(second);
         result.Value.Should().Be(first.Value + second.Value);
+    }
+
+    [TestMethod]
+    [DataRow("IV", "VI", "X")]
+    [DataRow("I", "I", "II")]
+    [DataRow("CMXCIX", "CDXLIV", "MCDXLIII")]
+    public void GivenTwoRomanNumberStrings_WhenCallingPlus_ShouldReturnCorrectRomanNumberString(string first, string second, string expected)
+    {
+        string result = RomanNumber.Parse(first).Plus(second);
+        result.Should().NotBeNull();
+        result.Should().BeOfType<string>();
+        result.Should().NotBeSameAs(first);
+        result.Should().NotBeSameAs(second);
+        result.Should().Be(expected);
     }
 
     private static IEnumerable<object[]> ValidNumberPairTestCases

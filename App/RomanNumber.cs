@@ -61,6 +61,13 @@ public record RomanNumber(int Value)
         return this with { Value = Value + other.Value };
     }
 
+    public string Plus(string other)
+    {
+        RomanNumber parsed = Parse(other);
+        RomanNumber result = this with { Value = Value + parsed.Value };
+        return result.ToString();
+    }
+
     public override string ToString()
     {
         if (_value == 0) return "N";

@@ -75,6 +75,19 @@ public class RomanNumberTest
         result.Should().Be(expected);
     }
 
+    [TestMethod]
+    public void PlusTest()
+    {
+        RomanNumber first = new(1);
+        RomanNumber second = new(2);
+        RomanNumber result = first.Plus(second);
+        result.Should().NotBeNull();
+        result.Should().BeOfType<RomanNumber>();
+        result.Should().NotBeSameAs(first);
+        result.Should().NotBeSameAs(second);
+        result.Value.Should().Be(first.Value + second.Value);
+    }
+
     private static IEnumerable<object[]> ValidNumberPairTestCases
     {
         get => [

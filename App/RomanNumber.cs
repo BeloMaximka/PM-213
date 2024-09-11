@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace App;
@@ -13,6 +14,8 @@ public record RomanNumber(int Value)
         int value = 0;
         int prevDigit = 0;
         int pos = input.Length;
+        int maxDigit = 0;
+        bool wasLess = false;
         List<string> errors = [];
         foreach (char c in input.Reverse())
         {
@@ -31,6 +34,8 @@ public record RomanNumber(int Value)
             {
                 errors.Add($"Invalid order '{c}' before {input[pos + 1]} at index {pos} in \"{input}\"");
             }
+
+            ValidateDigitInSequenceAndUpdateTrackVarieables(pos, input, digit, ref maxDigit, ref wasLess);
 
             value += digit >= prevDigit ? digit : -digit;
             prevDigit = digit;
@@ -103,6 +108,23 @@ public record RomanNumber(int Value)
             }
         }
         return sb.ToString();
+    }
+
+    private static void ValidateDigitInSequenceAndUpdateTrackVarieables(int pos, string input, int digit, ref int maxDigit, ref bool wasLess)
+    {
+        if (digit < maxDigit)
+        {
+            if (wasLess)
+            {
+                throw new FormatException($"Invalid sequence: more than 1 less digit before '{input[pos + 1]}'");
+            }
+            wasLess = true;
+        }
+        else
+        {
+            maxDigit = digit;
+            wasLess = false;
+        }
     }
 
     private static bool ShouldBeReplacedByRightDigit(int leftDigitValue, int rightDigitValue)

@@ -47,6 +47,25 @@ public class RomanNumberTest
     }
 
     [TestMethod]
+    [DataRow("IXC", 'X')]
+    [DataRow("IIX", 'I')]
+    [DataRow("VIX", 'I')]
+    [DataRow("IIXC", 'X')]
+    [DataRow("IIIX", 'I')]
+    [DataRow("VIIX", 'I')]
+    [DataRow("VIXC", 'X')]
+    [DataRow("IVIX", 'I')]
+    [DataRow("CVIIX", 'I')]
+    [DataRow("IXCC", 'X')]
+    [DataRow("IXCM", 'C')]
+    [DataRow("IXXC", 'X')]
+    public void GivenIncorrectNumberFormat_WhenParsing_ShouldThrowFormatException(string input, char characterAfterIncorrect)
+    {
+        var act = () => RomanNumber.Parse(input);
+        act.Should().Throw<FormatException>().WithMessage($"Invalid sequence: more than 1 less digit before '{characterAfterIncorrect}'");
+    }
+
+    [TestMethod]
     [DynamicData(nameof(ValidDigitPairTestCases))]
     public void DigitValueTest(string romanDigit, int expectedNumber)
     {

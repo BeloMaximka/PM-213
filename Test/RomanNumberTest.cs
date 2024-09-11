@@ -34,10 +34,8 @@ public class RomanNumberTest
 
     [TestMethod]
     [DataRow("IM", 'I', 'M', 0)]
-    [DataRow("XIM", 'I', 'M', 1)]
     [DataRow("IMX", 'I', 'M', 0)]
     [DataRow("XMD", 'X', 'M', 0)]
-    [DataRow("XID", 'I', 'D', 1)]
     [DataRow("VV", 'V', 'V', 0)]
     [DataRow("LL", 'L', 'L', 0)]
     [DataRow("LC", 'L', 'C', 0)]

@@ -12,38 +12,15 @@ public record RomanNumber(int Value)
     public static RomanNumber Parse(string input)
     {
         int value = 0;
-        int prevDigit = 0;
-        int pos = input.Length;
-        int maxDigit = 0;
-        bool wasLess = false;
-        List<string> errors = [];
+        int rightDigit = 0;
+
+        ValidateInput(input);
+
         foreach (char c in input.Reverse())
         {
-            pos -= 1;
-            int digit;
-            try
-            {
-                digit = DigitValue(c.ToString());
-            }
-            catch
-            {
-                errors.Add($"Invalid character '{c}' at index {pos}");
-                continue;
-            }
-            if (digit != 0 && (prevDigit / digit > 10 || ShouldBeReplacedByRightDigit(digit, prevDigit) || ShouldBeReplacedByNextDigit(prevDigit, digit)))
-            {
-                errors.Add($"Invalid order '{c}' before {input[pos + 1]} at index {pos} in \"{input}\"");
-            }
-
-            ValidateDigitInSequenceAndUpdateTrackVarieables(pos, input, digit, ref maxDigit, ref wasLess);
-
-            value += digit >= prevDigit ? digit : -digit;
-            prevDigit = digit;
-        }
-
-        if (errors.Count != 0)
-        {
-            throw new FormatException(string.Join("; ", errors));
+            int digit = DigitValue(c.ToString());
+            value += (digit >= rightDigit) ? digit : -digit;
+            rightDigit = digit;
         }
         return new(value);
     }
@@ -110,46 +87,96 @@ public record RomanNumber(int Value)
         return sb.ToString();
     }
 
-    private static void ValidateDigitInSequenceAndUpdateTrackVarieables(int pos, string input, int digit, ref int maxDigit, ref bool wasLess)
+    private static void ValidateInput(string input)
     {
-        if (digit < maxDigit)
+        ValidateSymbols(input);
+        ValidatePairs(input);
+        ValidateFormat(input);
+        ValidateSubs(input);
+    }
+
+    private static void ValidateSubs(string input)
+    {
+        HashSet<char> subs = [];
+        for (int i = 0; i < input.Length - 1; ++i)
         {
-            if (wasLess)
+            char c = input[i];
+            if (DigitValue(c.ToString()) < DigitValue(input[i + 1].ToString()))
             {
-                throw new FormatException($"Invalid sequence: more than 1 less digit before '{input[pos + 1]}'");
-            }
-            wasLess = true;
-        }
-        else
-        {
-            maxDigit = digit;
-            wasLess = false;
-        }
-    }
-
-    private static bool ShouldBeReplacedByRightDigit(int leftDigitValue, int rightDigitValue)
-    {
-        return rightDigitValue - leftDigitValue == leftDigitValue;
-    }
-
-    private static bool ShouldBeReplacedByNextDigit(int firstValue, int secondValue)
-    {
-        return firstValue == secondValue && firstValue * 2 == GetNextDigitValue(firstValue);
-    }
-
-    private static int GetNextDigitValue(int value)
-    {
-        int[] values = [1, 5, 10, 50, 100, 500, 1000];
-        if (value == values[^1]) return value;
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            if (value == values[i])
-            {
-                return values[i + 1]; 
+                if (subs.Contains(c))
+                {
+                    throw new FormatException();
+                }
+                subs.Add(c);
             }
         }
+    }
 
-        return values[0];
+    private static void ValidateFormat(string input)
+    {
+        int maxDigit = 0;
+        bool wasLess = false;
+        bool wasMax = false;
+        int pos = input.Length;
+        foreach (char c in input.Reverse())
+        {
+            pos--;
+            int digit = DigitValue(c.ToString());
+            if (digit < maxDigit)
+            {
+                if (wasLess || wasMax)
+                {
+                    throw new FormatException($"Invalid sequence: more than 1 less digit before '{input[pos + 1]}'");
+                }
+                
+                wasLess = true;
+            }
+            else if (digit == maxDigit)
+            {
+                wasMax = true;
+                wasLess = false;
+            }
+            else
+            {
+                maxDigit = digit;
+                wasLess = false;
+                wasMax = false;
+            }
+        }
+    }
+
+    private static void ValidatePairs(string input)
+    {
+        for (int i = 0; i < input.Length - 1; ++i)
+        {
+            int rightDigit = DigitValue(input[i + 1].ToString());
+            int leftDigit = DigitValue(input[i].ToString());
+            if (leftDigit != 0 &&
+                leftDigit < rightDigit &&
+                (rightDigit / leftDigit > 10 ||
+                    (leftDigit == 5 || leftDigit == 50 || leftDigit == 500)
+                ))
+            {
+                throw new FormatException(
+                    $"Invalid order '{input[i]}' before '{input[i + 1]}' at index {i} in \"{input}\"");
+            }
+        }
+    }
+
+    private static void ValidateSymbols(string input)
+    {
+        int pos = 0;
+        foreach (char c in input)
+        {
+            try
+            {
+                DigitValue(c.ToString());
+            }
+            catch
+            {
+                throw new FormatException($"Invalid character '{c}' at index {pos}");
+            }
+            pos += 1;
+        }
     }
 }

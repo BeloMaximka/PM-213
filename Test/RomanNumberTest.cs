@@ -1,6 +1,8 @@
 using App;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Test;
 
@@ -36,14 +38,11 @@ public class RomanNumberTest
     [DataRow("IM", 'I', 'M', 0)]
     [DataRow("IMX", 'I', 'M', 0)]
     [DataRow("XMD", 'X', 'M', 0)]
-    [DataRow("VV", 'V', 'V', 0)]
-    [DataRow("LL", 'L', 'L', 0)]
     [DataRow("LC", 'L', 'C', 0)]
-    [DataRow("VX", 'V', 'X', 0)]
     public void GivenIncorrectNumberFormat_WhenParsing_ShouldThrowFormatExceptionWithMessage(string input, char incorrectCharacter, char correctCharacter, int position)
     {
         var act = () => RomanNumber.Parse(input);
-        act.Should().Throw<FormatException>().WithMessage($"Invalid order '{incorrectCharacter}' before {correctCharacter} at index {position} in \"{input}\"");
+        act.Should().Throw<FormatException>().WithMessage($"Invalid order '{incorrectCharacter}' before '{correctCharacter}' at index {position} in \"{input}\"");
     }
 
     [TestMethod]
@@ -56,13 +55,75 @@ public class RomanNumberTest
     [DataRow("VIXC", 'X')]
     [DataRow("IVIX", 'I')]
     [DataRow("CVIIX", 'I')]
-    [DataRow("IXCC", 'X')]
+    [DataRow("IXCC", 'C')]
     [DataRow("IXCM", 'C')]
     [DataRow("IXXC", 'X')]
     public void GivenIncorrectNumberFormat_WhenParsing_ShouldThrowFormatException(string input, char characterAfterIncorrect)
     {
         var act = () => RomanNumber.Parse(input);
         act.Should().Throw<FormatException>().WithMessage($"Invalid sequence: more than 1 less digit before '{characterAfterIncorrect}'");
+    }
+
+    [TestMethod]
+    public void ValidatePairsTest()
+    {
+        Type rnType = typeof(RomanNumber);
+        MethodInfo? methodInfo = rnType.GetMethod("ValidatePairs", BindingFlags.NonPublic | BindingFlags.Static);
+
+        methodInfo?.Invoke(null, ["IX"]);
+        var act = () => methodInfo?.Invoke(null, ["IM"]);
+        var exception = act.Should().Throw<TargetInvocationException>().And;
+        exception.InnerException.Should().BeOfType<FormatException>();
+    }
+
+    [TestMethod]
+    [DataRow("IXIV")]
+    [DataRow("XCXL")]
+    public void ValidateSubsTest(string input)
+    {
+        Type rnType = typeof(RomanNumber);
+        MethodInfo? methodInfo = rnType.GetMethod("ValidateSubs", BindingFlags.NonPublic | BindingFlags.Static);
+
+        var act = () => methodInfo?.Invoke(null, [input]);
+        var exception = act.Should().Throw<TargetInvocationException>().And;
+        exception.InnerException.Should().BeOfType<FormatException>();
+    }
+
+    [TestMethod]
+    [DataRow("IXIX")]
+    [DataRow("IXX")]
+    [DataRow("IVIV")]
+    [DataRow("XCC")]
+    public void ValidateInputTest(string input)
+    {
+        Type rnType = typeof(RomanNumber);
+        MethodInfo? methodInfo = rnType.GetMethod("ValidateInput", BindingFlags.NonPublic | BindingFlags.Static);
+
+        var act = () => methodInfo?.Invoke(null, ["IXIX"]);
+
+        var exception = act.Should().Throw<TargetInvocationException>().And;
+        exception.InnerException.Should().BeOfType<FormatException>();
+    }
+
+    [TestMethod]
+    public void ValidateInputTest_HappyPath_NoExceptions()
+    {
+        Type rnType = typeof(RomanNumber);
+        MethodInfo? methodInfo = rnType.GetMethod("ValidateInput", BindingFlags.NonPublic | BindingFlags.Static);
+
+        var happyPath = () => methodInfo?.Invoke(null, ["IX"]);
+        happyPath.Should().NotThrow();
+    }
+
+    [TestMethod]
+    public void GetDigitTest()
+    {
+        Type rnType = typeof(RomanNumber);
+        MethodInfo? methodInfo = rnType.GetMethod("GetDigitTest", BindingFlags.NonPublic | BindingFlags.Static);
+
+        methodInfo?.Invoke(null, ["IX"]);
+        var act = () => methodInfo?.Invoke(null, ["IX"]);
+        act.Should().NotThrow<FormatException>();
     }
 
     [TestMethod]

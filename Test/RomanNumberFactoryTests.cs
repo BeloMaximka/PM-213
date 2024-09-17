@@ -56,10 +56,26 @@ public class RomanNumberFactoryTests
     [DataRow("IXCC", 'C')]
     [DataRow("IXCM", 'C')]
     [DataRow("IXXC", 'X')]
-    public void GivenIncorrectNumberFormat_WhenParsing_ShouldThrowFormatException(string input, char characterAfterIncorrect)
+    public void GivenIncorrectDigitSequence_WhenParsing_ShouldThrowFormatException(string input, char characterAfterIncorrect)
     {
         var act = () => RomanNumberFactory.Parse(input);
         act.Should().Throw<FormatException>().WithMessage($"Invalid sequence: more than 1 less digit before '{characterAfterIncorrect}'");
+    }
+
+    [TestMethod]
+    [DataRow("IXIX")]
+    [DataRow("IXX")]
+    [DataRow("IXIV")]
+    [DataRow("XCXC")]
+    [DataRow("CMM")]
+    [DataRow("CMCD")]
+    [DataRow("XCXL")]
+    [DataRow("XCC")]
+    [DataRow("XCCI")]
+    public void GivenIncorrectNumberFormat_WhenParsing_ShouldThrowFormatException(string input)
+    {
+        var act = () => RomanNumberFactory.Parse(input);
+        act.Should().Throw<FormatException>();
     }
 
     [TestMethod]

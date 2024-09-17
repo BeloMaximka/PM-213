@@ -8,16 +8,26 @@ namespace Test;
 public class RomanNumberFactoryTests
 {
     [TestMethod]
-    [DynamicData(nameof(ValidNumberPairTestCases))]
-    public void ParseTest(string romanNumber, int number)
+    [DataRow("N", 0)]
+    [DataRow("I", 1)]
+    [DataRow("II", 2)]
+    [DataRow("III", 3)]
+    [DataRow("IIII", 4)]
+    [DataRow("IV", 4)]
+    [DataRow("VI", 6)]
+    [DataRow("VII", 7)]
+    [DataRow("VIII", 8)]
+    [DataRow("IX", 9)]
+    [DataRow("D", 500)]
+    [DataRow("M", 1000)]
+    [DataRow("CM", 900)]
+    [DataRow("MC", 1100)]
+    [DataRow("MCM", 1900)]
+    [DataRow("MM", 2000)]
+    public void GivenCorrectRomanNumbers_ShouldParseWithCorrectValue(string romanNumber, int expected)
     {
         RomanNumber rn = RomanNumberFactory.Parse(romanNumber);
-        Assert.IsNotNull(rn);
-        Assert.AreEqual(
-        number,
-            rn.Value,
-            $"{romanNumber} -> {number}"
-        );
+        rn.Value.Should().Be(expected);
     }
 
     [TestMethod]
@@ -79,11 +89,22 @@ public class RomanNumberFactoryTests
     }
 
     [TestMethod]
-    [DynamicData(nameof(ValidDigitPairTestCases))]
-    public void DigitValueTest(string romanDigit, int expectedNumber)
+    [DataRow("N", 0)]
+    [DataRow("I", 1)]
+    [DataRow("V", 5)]
+    [DataRow("X", 10)]
+    [DataRow("L", 50)]
+    [DataRow("C", 100)]
+    [DataRow("D", 500)]
+    [DataRow("M", 1000)]
+    public void GivenRomanDigit_ShouldReturnCorrectInteger(string romanDigit, int expectedNumber)
     {
-
         RomanNumberFactory.DigitValue(romanDigit).Should().Be(expectedNumber);
+    }
+
+    [TestMethod]
+    public void GivenIncorrectDigit_ShouldThrowException()
+    {
         var act = () => RomanNumberFactory.DigitValue("IncorrectTestValue");
         var ex = act.Should().Throw<ArgumentException>().WithParameterName("digit").And;
         ex.Message.Should().NotBeNullOrEmpty();
@@ -132,41 +153,5 @@ public class RomanNumberFactoryTests
         var act = () => methodInfo?.Invoke(null, [input]);
         var exception = act.Should().Throw<TargetInvocationException>().And;
         exception.InnerException.Should().BeOfType<FormatException>();
-    }
-
-    private static IEnumerable<object[]> ValidNumberPairTestCases
-    {
-        get => [
-                ["N",    0],
-                ["I",    1],
-                ["II",   2],
-                ["III",  3],
-                ["IIII", 4],   // цим тестом ми дозволяємо неоптимальну форму числа
-                ["IV",   4],
-                ["VI",   6],
-                ["VII",  7],
-                ["VIII", 8],
-                ["IX",   9],
-                ["D",    500],
-                ["M",    1000],
-                ["CM",   900],
-                ["MC",   1100],
-                ["MCM",  1900],
-                ["MM",   2000],
-        ];
-    }
-
-    private static IEnumerable<object[]> ValidDigitPairTestCases
-    {
-        get => [
-            ["N", 0 ],
-            ["I", 1 ],
-            ["V", 5 ],
-            ["X", 10 ],
-            ["L", 50 ],
-            ["C", 100 ],
-            ["D", 500 ],
-            ["M", 1000 ],
-        ];
     }
 }

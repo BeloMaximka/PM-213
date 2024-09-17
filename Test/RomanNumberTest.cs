@@ -36,7 +36,14 @@ public class RomanNumberTest
     }
 
     [TestMethod]
-    [DynamicData(nameof(ValidDigitPairTestCases))]
+    [DataRow("N", 0)]
+    [DataRow("I", 1)]
+    [DataRow("V", 5)]
+    [DataRow("X", 10)]
+    [DataRow("L", 50)]
+    [DataRow("C", 100)]
+    [DataRow("D", 500)]
+    [DataRow("M", 1000)]
     [DataRow("CXXIII", 123)]
     [DataRow("CDXLIV", 444)]
     [DataRow("CMXCIX", 999)]
@@ -59,20 +66,5 @@ public class RomanNumberTest
         result.Should().NotBeSameAs(first);
         result.Should().NotBeSameAs(second);
         result.Should().Be(expected);
-    }
-
-    
-    private static IEnumerable<object[]> ValidDigitPairTestCases
-    {
-        get => [
-            ["N", 0 ],
-            ["I", 1 ],
-            ["V", 5 ],
-            ["X", 10 ],
-            ["L", 50 ],
-            ["C", 100 ],
-            ["D", 500 ],
-            ["M", 1000 ],
-        ];
     }
 }
